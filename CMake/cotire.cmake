@@ -2364,12 +2364,18 @@ function (cotire_generate_target_script _language _configurations _target _targe
 		CMAKE_${_language}_SOURCE_FILE_EXTENSIONS)
 		if (DEFINED ${_var})
 			string (REPLACE "\"" "\\\"" _value "${${_var}}")
-			set (_contents "${_contents}set (${_var} \"${_value}\")\n")
-			if (NOT _contentsHasGeneratorExpressions)
-				if ("${_value}" MATCHES "\\$<.*>")
-					set (_contentsHasGeneratorExpressions TRUE)
+			if ("${_value}" MATCHES "\\$<.*>")
+				# We have to evaluate generator expressions
+				if (NOT _contentsHasGeneratorExpressions)
+						set (_contentsHasGeneratorExpressions TRUE)
 				endif()
+				# Expand various generator expressions which can only be evaluated on binary targets manually
+				foreach(_currentReplacedGeneratorExpression "C_COMPILER_ID" "CXX_COMPILER_ID")
+					set(_currentReplacement ${CMAKE_${_currentReplacedGeneratorExpression}})
+					string (REGEX REPLACE "\\$<${_currentReplacedGeneratorExpression}:([a-zA-Z0-9]*)>" "$<STREQUAL:\\\\\"${_currentReplacement}\\\\\",\\\\\"\\1\\\\\">" _value "${_value}")
+				endforeach()
 			endif()
+			set (_contents "${_contents}set (${_var} \"${_value}\")\n")
 		endif()
 	endforeach()
 	# generate target script file
