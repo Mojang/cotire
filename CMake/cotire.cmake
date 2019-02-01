@@ -1964,7 +1964,11 @@ function (cotire_precompile_prefix_header _prefixFile _pchFile _hostFile)
 	endif()
 	cotire_init_compile_cmd(_cmd "${_option_LANGUAGE}" "${_option_COMPILER_LAUNCHER}" "${_option_COMPILER_EXECUTABLE}" "${_option_COMPILER_ARG1}")
 	cotire_add_definitions_to_cmd(_cmd "${_option_LANGUAGE}" ${_option_COMPILE_DEFINITIONS})
+	if(DEFINED COTIRE_ANDROID_TRIPLET)
+		list(APPEND _cmd "--target=${COTIRE_ANDROID_TRIPLET}")
+	endif()
 	cotire_add_compile_flags_to_cmd(_cmd ${_option_COMPILE_FLAGS})
+	string(REPLACE "-Wa,--noexecstack" "" _cmd "${_cmd}")
 	cotire_add_includes_to_cmd(_cmd "${_option_LANGUAGE}" _option_INCLUDE_DIRECTORIES _option_SYSTEM_INCLUDE_DIRECTORIES)
 	cotire_add_frameworks_to_cmd(_cmd "${_option_LANGUAGE}" _option_INCLUDE_DIRECTORIES _option_SYSTEM_INCLUDE_DIRECTORIES)
 	cotire_add_pch_compilation_flags(
@@ -3776,6 +3780,10 @@ else()
 	endif()
 	option (COTIRE_VERBOSE "Enable cotire verbose output?" ${COTIRE_VERBOSE_INIT})
 
+	if(ANDROID AND NOT DEFINED COTIRE_ANDROID_TRIPLET)
+		set(COTIRE_ANDROID_TRIPLET "armv7-none-linux-android")
+	endif()
+	
 	set (COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS "inc;inl;ipp" CACHE STRING
 		"Ignore headers with the listed file extensions from the generated prefix header.")
 
