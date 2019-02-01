@@ -1467,7 +1467,7 @@ function (cotire_generate_prefix_header _prefixFile)
 	endif()
 	set (_prologue "")
 	set (_epilogue "")
-	if (_option_COMPILER_ID MATCHES "Clang")
+	if (_option_COMPILER_ID MATCHES "Clang|LLVM")
 		set (_prologue "#pragma clang system_header")
 	elseif (_option_COMPILER_ID MATCHES "GNU")
 		set (_prologue "#pragma GCC system_header")
@@ -1550,7 +1550,7 @@ function (cotire_add_makedep_flags _language _compilerID _compilerVersion _flags
 				set (_flags "${_flags} -fdirectives-only")
 			endif()
 		endif()
-	elseif (_compilerID MATCHES "Clang")
+	elseif (_compilerID MATCHES "Clang|LLVM")
 		get_filename_component(_compilerName "${CMAKE_${_language}_COMPILER}" NAME_WE)
 		if (NOT WIN32 OR NOT _compilerName MATCHES "cl$")
 			# Clang options used
@@ -1671,7 +1671,7 @@ function (cotire_add_pch_compilation_flags _language _compilerID _compilerVersio
 			# return as a flag string
 			set (_flags "-x ${_xLanguage_${_language}} -c \"${_prefixFile}\" -o \"${_pchFile}\"")
 		endif()
-	elseif (_compilerID MATCHES "Clang")
+	elseif (_compilerID MATCHES "Clang|LLVM")
 		get_filename_component(_compilerName "${CMAKE_${_language}_COMPILER}" NAME_WE)
 		if (NOT WIN32 OR NOT _compilerName MATCHES "cl$")
 			# Clang options used
@@ -1831,7 +1831,7 @@ function (cotire_add_prefix_pch_inclusion_flags _language _compilerID _compilerV
 			# return as a flag string
 			set (_flags "-Winvalid-pch -include \"${_prefixFile}\"")
 		endif()
-	elseif (_compilerID MATCHES "Clang")
+	elseif (_compilerID MATCHES "Clang|LLVM")
 		get_filename_component(_compilerName "${CMAKE_${_language}_COMPILER}" NAME_WE)
 		if (NOT WIN32 OR NOT _compilerName MATCHES "cl$")
 			# Clang options used
@@ -1976,7 +1976,7 @@ function (cotire_precompile_prefix_header _prefixFile _pchFile _hostFile)
 	if (MSVC_IDE OR _option_COMPILER_ID MATCHES "MSVC")
 		# cl.exe messes with the output streams unless the environment variable VS_UNICODE_OUTPUT is cleared
 		unset (ENV{VS_UNICODE_OUTPUT})
-	elseif (_option_COMPILER_ID MATCHES "Clang" AND _option_COMPILER_VERSION VERSION_LESS "4.0.0")
+	elseif (_option_COMPILER_ID MATCHES "Clang|LLVM" AND _option_COMPILER_VERSION VERSION_LESS "4.0.0")
 		if (_option_COMPILER_LAUNCHER MATCHES "ccache" OR
 			_option_COMPILER_EXECUTABLE MATCHES "ccache")
 			# Newer versions of Clang embed a compilation timestamp into the precompiled header binary,
@@ -2008,7 +2008,7 @@ function (cotire_check_precompiled_header_support _language _target _msgVar)
 		else()
 			set (${_msgVar} "" PARENT_SCOPE)
 		endif()
-	elseif (CMAKE_${_language}_COMPILER_ID MATCHES "Clang")
+	elseif (CMAKE_${_language}_COMPILER_ID MATCHES "Clang|LLVM")
 		get_filename_component(_compilerName "${CMAKE_${_language}_COMPILER}" NAME_WE)
 		if (NOT WIN32 OR NOT _compilerName MATCHES "cl$")
 			# all Unix Clang versions have PCH support
@@ -2221,7 +2221,7 @@ function (cotire_make_pch_file_path _language _target _pchFileVar)
 			if (CMAKE_${_language}_COMPILER_ID MATCHES "MSVC")
 				# MSVC uses the extension .pch added to the prefix header base name
 				set (${_pchFileVar} "${_baseDir}/${_prefixFileBaseName}.pch" PARENT_SCOPE)
-			elseif (CMAKE_${_language}_COMPILER_ID MATCHES "Clang")
+			elseif (CMAKE_${_language}_COMPILER_ID MATCHES "Clang|LLVM")
 				# Clang looks for a precompiled header corresponding to the prefix header with the extension .pch appended
 				set (${_pchFileVar} "${_baseDir}/${_prefixFileName}.pch" PARENT_SCOPE)
 			elseif (CMAKE_${_language}_COMPILER_ID MATCHES "GNU")
