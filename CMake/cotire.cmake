@@ -2316,6 +2316,7 @@ function (cotire_generate_target_script _language _configurations _target _targe
 	cotire_get_source_files_undefs(COTIRE_UNITY_SOURCE_PRE_UNDEFS COTIRE_TARGET_SOURCES_PRE_UNDEFS ${_targetSources})
 	cotire_get_source_files_undefs(COTIRE_UNITY_SOURCE_POST_UNDEFS COTIRE_TARGET_SOURCES_POST_UNDEFS ${_targetSources})
 	set (COTIRE_TARGET_CONFIGURATION_TYPES "${_configurations}")
+	set (COTIRE_TARGET_ADDITIONAL_INCLUDE_DIRECTORIES ${CMAKE_${_language}_STANDARD_INCLUDE_DIRECTORIES})
 	foreach (_config ${_configurations})
 		string (TOUPPER "${_config}" _upperConfig)
 		cotire_get_target_include_directories(
@@ -3617,6 +3618,7 @@ if (CMAKE_SCRIPT_MODE_FILE)
 	endif()
 	string (TOUPPER "${COTIRE_BUILD_TYPE}" _upperConfig)
 	set (_includeDirs ${COTIRE_TARGET_INCLUDE_DIRECTORIES_${_upperConfig}})
+	list (APPEND _includeDirs "${COTIRE_TARGET_ADDITIONAL_INCLUDE_DIRECTORIES}")
 	set (_systemIncludeDirs ${COTIRE_TARGET_SYSTEM_INCLUDE_DIRECTORIES_${_upperConfig}})
 	set (_compileDefinitions ${COTIRE_TARGET_COMPILE_DEFINITIONS_${_upperConfig}})
 	set (_compileFlags ${COTIRE_TARGET_COMPILE_FLAGS_${_upperConfig}})
@@ -3783,7 +3785,7 @@ else()
 	if(ANDROID AND NOT DEFINED COTIRE_ANDROID_TRIPLET)
 		set(COTIRE_ANDROID_TRIPLET "armv7-none-linux-android")
 	endif()
-	
+
 	set (COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS "inc;inl;ipp" CACHE STRING
 		"Ignore headers with the listed file extensions from the generated prefix header.")
 
